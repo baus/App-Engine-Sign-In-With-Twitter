@@ -29,9 +29,10 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext.webapp import template
 from gaesessions import get_current_session
+from gaesessions import delete_expired_sessions
 
-TWITTER_CONSUMER_KEY = "XXX"
-TWITTER_CONSUMER_SECRET = "XXX"
+TWITTER_CONSUMER_KEY = "xxx"
+TWITTER_CONSUMER_SECRET = "xxx"
 TWITTER_REQUEST_TOKEN_URL = "https://api.twitter.com/oauth/request_token"
 TWITTER_ACCESS_TOKEN_URL = "https://api.twitter.com/oauth/access_token"
 TWITTER_AUTHENTICATE_URL = "https://api.twitter.com/oauth/authenticate"
@@ -146,12 +147,18 @@ class SignOut(webapp.RequestHandler):
             session.terminate()
         self.redirect("/")
 
+class CleanupSessions(webapp.RequestHandler):
+    def get(self):
+        while not delete_expired_sessions():
+            pass
+
 
 application = webapp.WSGIApplication([('/', MainHandler),
                                       ('/profile', ProfileHandler),
                                       ('/signin', SignInWithTwitter),
                                       ('/twitterauthorized', TwitterAuthorized),
-                                      ('/signout', SignOut)],
+                                      ('/signout', SignOut),
+                                      ('/cleanup_sessions', CleanupSessions)],
                                          debug=True)
 
 def main(): run_wsgi_app(application)
