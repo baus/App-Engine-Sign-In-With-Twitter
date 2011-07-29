@@ -17,9 +17,7 @@
 # This is a short example program which shows how to use Twitter's
 # "Sign In With Twitter" authentication with Google App Engine.
 #
-# It is a little tricky because you can't use App Engine's built
-# in authentication, and have to use your own sessions. This example
-# uses gae-sessions to maintain the user's information.
+# See README.markdown
 #
 import os
 import twitter
@@ -30,9 +28,9 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext.webapp import template
 from gaesessions import get_current_session
 from gaesessions import delete_expired_sessions
+from twitteroauthkeys import TWITTER_CONSUMER_KEY
+from twitteroauthkeys import TWITTER_CONSUMER_SECRET
 
-TWITTER_CONSUMER_KEY = "xxx"
-TWITTER_CONSUMER_SECRET = "xxx"
 TWITTER_REQUEST_TOKEN_URL = "https://api.twitter.com/oauth/request_token"
 TWITTER_ACCESS_TOKEN_URL = "https://api.twitter.com/oauth/access_token"
 TWITTER_AUTHENTICATE_URL = "https://api.twitter.com/oauth/authenticate"
