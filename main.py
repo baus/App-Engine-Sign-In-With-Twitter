@@ -66,27 +66,25 @@ class MainHandler(webapp.RequestHandler):
         self.response.out.write(template.render(path, None))
 
 class ProfileHandler(webapp.RequestHandler):
-    @authenticated
-    def get(self):
+    def render_template(self, profile_saved):
         template_values = {"twitter_screen_name": self.profile.key().id_or_name(),
-                           "example_data": self.profile.example_data if self.profile.example_data is not None else "",
-                           "profile_saved": False}
+                               "example_data": self.profile.example_data if self.profile.example_data is not None else "",
+                               "profile_saved": profile_saved}
 
         path = os.path.join(os.path.dirname(__file__), 'templates/profile.html')
         self.response.out.write(template.render(path, template_values))
+
+
+    @authenticated
+    def get(self):
+        return self.render_template(False)
 
     @authenticated
     def post(self):
         self.profile.example_data = self.request.get("example_data")
         self.profile.save()
 
-        template_values = {"twitter_screen_name": self.profile.key().id_or_name(),
-                           "example_data": self.profile.example_data if self.profile.example_data is not None else "",
-                           "profile_saved": True}
-
-        path = os.path.join(os.path.dirname(__file__), 'templates/profile.html')
-        self.response.out.write(template.render(path, template_values))
-
+        return self.render_template(True)
 
 class SignInWithTwitter(webapp.RequestHandler):
     def get(self):
