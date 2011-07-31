@@ -22,6 +22,7 @@
 import os
 import twitter
 import oauthclient
+import functools
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -40,44 +41,41 @@ class Profile(db.Model):
     twitter_access_token_secret = db.StringProperty()
     example_data = db.StringProperty()
 
+def authenticated(method):
+    """Decorate request handlers with this method to restrict to access to authenticated users."""
+    @functools.wraps(method)
+    def wrapper(self, *args, **kwargs):
+        session = get_current_session()
+        twitter_screen_name = session.get("twitter_screen_name")
+        if twitter_screen_name is None:
+            self.error(403)
+            return
+
+        self.profile = Profile.get_by_key_name(twitter_screen_name)
+        if self.profile is None:
+            self.profile = Profile(key_name = twitter_screen_name)
+            self.profile.save()
+                
+        return method(self, *args, **kwargs)
+
 
 class MainHandler(webapp.RequestHandler):
     def get(self):
         path = os.path.join(os.path.dirname(__file__), 'templates/signin.html')
         self.response.out.write(template.render(path, None))
 
-
 class ProfileHandler(webapp.RequestHandler):
+    @authenticated
     def get(self):
-        session = get_current_session()
-        twitter_screen_name = session.get("twitter_screen_name")
-        if twitter_screen_name is None:
-            self.error(403)
-            return
-
-        profile = Profile.get_by_key_name(twitter_screen_name)
-        if profile is None:
-            self.error(500)
-            return
-        
         template_values = {"twitter_screen_name": twitter_screen_name,
-                           "example_data": profile.example_data if profile.example_data is not None else "" }
+                           "example_data": profile.example_data if profile.example_data is not None else "",
+                           "profile_saved": False}
 
         path = os.path.join(os.path.dirname(__file__), 'templates/profile.html')
         self.response.out.write(template.render(path, template_values))
 
+    @authenticated
     def post(self):
-        session = get_current_session()
-        twitter_screen_name = session.get("twitter_screen_name")
-        if twitter_screen_name is None:
-            self.error(403)
-            return
-
-        profile = Profile.get_by_key_name(twitter_screen_name)
-        if profile is None:
-            self.error(500)
-            return
-
         profile.example_data = self.request.get("example_data")
         profile.save()
 

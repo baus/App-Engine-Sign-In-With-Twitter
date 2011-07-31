@@ -13,8 +13,11 @@ For convenience, the dependencies of the application are included. App Engine re
 code be bundled, so this simplifies deployment.
 
 [httplib2](http://code.google.com/p/httplib2/)
+
 [gae-sessions](https://github.com/dound/gae-sessions)
+
 [python-twitter](http://code.google.com/p/python-twitter/)
+
 [python-oauth2](https://github.com/simplegeo/python-oauth2)
 
 
