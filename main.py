@@ -57,6 +57,7 @@ def authenticated(method):
             self.profile.save()
                 
         return method(self, *args, **kwargs)
+    return wrapper
 
 
 class MainHandler(webapp.RequestHandler):
@@ -67,8 +68,8 @@ class MainHandler(webapp.RequestHandler):
 class ProfileHandler(webapp.RequestHandler):
     @authenticated
     def get(self):
-        template_values = {"twitter_screen_name": twitter_screen_name,
-                           "example_data": profile.example_data if profile.example_data is not None else "",
+        template_values = {"twitter_screen_name": self.profile.key().id_or_name(),
+                           "example_data": self.profile.example_data if self.profile.example_data is not None else "",
                            "profile_saved": False}
 
         path = os.path.join(os.path.dirname(__file__), 'templates/profile.html')
@@ -76,11 +77,11 @@ class ProfileHandler(webapp.RequestHandler):
 
     @authenticated
     def post(self):
-        profile.example_data = self.request.get("example_data")
-        profile.save()
+        self.profile.example_data = self.request.get("example_data")
+        self.profile.save()
 
-        template_values = {"twitter_screen_name": twitter_screen_name,
-                           "example_data": profile.example_data if profile.example_data is not None else "",
+        template_values = {"twitter_screen_name": self.profile.key().id_or_name(),
+                           "example_data": self.profile.example_data if self.profile.example_data is not None else "",
                            "profile_saved": True}
 
         path = os.path.join(os.path.dirname(__file__), 'templates/profile.html')
