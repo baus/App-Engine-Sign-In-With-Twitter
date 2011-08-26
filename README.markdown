@@ -1,4 +1,9 @@
 # Sign In with Twitter OAuth Example #
+
+## Try it NOW! ##
+
+For a live example of this example running on Google App Engine, go to [Sign In With Twitter](https://signinwithtwitter.appspot.com/).
+
 ## Overview ##
 
 One of the great things about Google App Engine is that it has builtin authentication. The drawback is that
