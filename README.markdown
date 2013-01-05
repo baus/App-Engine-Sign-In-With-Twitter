@@ -29,4 +29,4 @@ code be bundled, so this simplifies deployment.
 
 Put your twitter app's consumer key and consumer secret into the file twitteroauthkeys.py
 
-Also remeber to configure your twitter app's callback URL using the following scheme: https://<my-app-name>.appspot.com/twitterauthorized
+Also remeber to configure your twitter app's callback URL using the following scheme: https://my-app-name.appspot.com/twitterauthorized
