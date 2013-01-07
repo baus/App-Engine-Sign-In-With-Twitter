@@ -25,8 +25,8 @@ code be bundled, so this simplifies deployment.
 
 [python-oauth2](https://github.com/simplegeo/python-oauth2)
 
+## Twitter App Configuration ##
 
+Put your twitter app's consumer key and consumer secret into the file twitteroauthkeys.py
 
-
-
-
+Also remeber to configure your twitter app's callback URL using the following scheme: https://my-app-name.appspot.com/twitterauthorized

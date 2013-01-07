@@ -12,7 +12,7 @@ def RetrieveServiceRequestToken(request_token_url, consumer_key, consumer_secret
     consumer = oauth.Consumer(consumer_key, consumer_secret)
     client = oauth.Client(consumer)
     resp, content = client.request(request_token_url, "GET")
-    if resp['status'] != 200:
+    if resp.status != 200:
         raise Exception("OAuth server provided error when retrieving oauth token: %s." % resp['status'] )
 
     request_token = dict(cgi.parse_qsl(content))
