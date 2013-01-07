@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <link href="favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/admin.css">
+
+    <title>Site Admin</title>
+
+    </head>
+
+<body style="padding-top: 40px">
+    <div class="topbar">
+        <div class="topbar-inner">
+            <div class="container">
+            </div>
+        </div><!-- /topbar-inner -->
+    </div><!-- /topbar -->
+
+    <div class="container">
+        <div class="content">
+            <form action="/admin" method="POST">
+                {% for form in service_formset.forms %}
+                    <fieldset>
+                    {% for field in form %}
+                        {% if field.name == "display_name" %}
+                        <h2>{{ field.value() }}</h2>
+                        {% else %}
+                        <label>{{ field.label|safe }}</label>
+                        {{ field }}
+                        {% endif %}
+                    {% endfor %}
+                    </fieldset>
+                {% endfor %}
+
+                <div class="actions">
+                    <input type="submit" class="btn primary" value="Save changes">&nbsp;<button type="reset" class="btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
