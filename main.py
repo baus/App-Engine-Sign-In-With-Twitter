@@ -88,7 +88,7 @@ class ProfileHandler(webapp.RequestHandler):
 
 class SignInWithTwitter(webapp.RequestHandler):
     def get(self):
-        key, secret = oauthclient.RetrieveServiceRequestToken(TWITTER_REQUEST_TOKEN_URL,
+        key, secret = oauthclient.retrieve_service_request_token(TWITTER_REQUEST_TOKEN_URL,
                                                               TWITTER_CONSUMER_KEY,
                                                               TWITTER_CONSUMER_SECRET)
         session = get_current_session()
@@ -97,7 +97,7 @@ class SignInWithTwitter(webapp.RequestHandler):
         session['twitter_request_key'] = key
         session['twitter_request_secret'] = secret
 
-        self.redirect(oauthclient.GenerateAuthorizeUrl(TWITTER_AUTHENTICATE_URL, key))
+        self.redirect(oauthclient.generate_authorize_url(TWITTER_AUTHENTICATE_URL, key))
 
 
 class TwitterAuthorized(webapp.RequestHandler):
@@ -110,7 +110,7 @@ class TwitterAuthorized(webapp.RequestHandler):
             self.error(500)
             return
 
-        key, secret = oauthclient.ExchangeRequestTokenForAccessToken(TWITTER_CONSUMER_KEY,
+        key, secret = oauthclient.exchange_request_token_for_access_token(TWITTER_CONSUMER_KEY,
                                                                      TWITTER_CONSUMER_SECRET,
                                                                      TWITTER_ACCESS_TOKEN_URL,
                                                                      verifier,

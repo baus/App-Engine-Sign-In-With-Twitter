@@ -8,7 +8,7 @@ import urlparse
 
 # Request the request token from the Service Provider. Unless the consumer_key and/or secret
 # the service should provide the request token with out error.
-def RetrieveServiceRequestToken(request_token_url, consumer_key, consumer_secret):
+def retrieve_service_request_token(request_token_url, consumer_key, consumer_secret):
     consumer = oauth.Consumer(consumer_key, consumer_secret)
     client = oauth.Client(consumer)
     resp, content = client.request(request_token_url, "GET")
@@ -18,10 +18,10 @@ def RetrieveServiceRequestToken(request_token_url, consumer_key, consumer_secret
     request_token = dict(urlparse.parse_qsl(content))
     return request_token['oauth_token'], request_token['oauth_token_secret']
 
-def GenerateAuthorizeUrl(authorize_url, request_token):
+def generate_authorize_url(authorize_url, request_token):
     return "%s?oauth_token=%s" % (authorize_url, request_token)
 
-def ExchangeRequestTokenForAccessToken(consumer_key,
+def exchange_request_token_for_access_token(consumer_key,
                                        consumer_secret,
                                        access_token_url,
                                        verifier,
