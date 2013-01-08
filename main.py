@@ -40,7 +40,6 @@ from gaesessions import delete_expired_sessions
 from twitteroauthkeys import TWITTER_CONSUMER_KEY
 from twitteroauthkeys import TWITTER_CONSUMER_SECRET
 from django.forms.formsets import formset_factory
-from django.forms.models import modelformset_factory
 
 
 TWITTER_REQUEST_TOKEN_URL = "https://api.twitter.com/oauth/request_token"
@@ -83,8 +82,8 @@ class MainHandler(webapp.RequestHandler):
 class ProfileHandler(webapp.RequestHandler):
     def render_template(self, profile_saved):
         template_values = {"twitter_screen_name": self.profile.key().id_or_name(),
-                               "example_data": self.profile.example_data if self.profile.example_data is not None else "",
-                               "profile_saved": profile_saved}
+                           "example_data": self.profile.example_data if self.profile.example_data is not None else "",
+                           "profile_saved": profile_saved}
 
         path = os.path.join(os.path.dirname(__file__), 'templates/profile.html')
         self.response.out.write(template.render(path, template_values))
@@ -104,8 +103,8 @@ class ProfileHandler(webapp.RequestHandler):
 class SignInWithTwitter(webapp.RequestHandler):
     def get(self):
         key, secret = oauthclient.retrieve_service_request_token(TWITTER_REQUEST_TOKEN_URL,
-                                                              TWITTER_CONSUMER_KEY,
-                                                              TWITTER_CONSUMER_SECRET)
+                                                                 TWITTER_CONSUMER_KEY,
+                                                                 TWITTER_CONSUMER_SECRET)
         session = get_current_session()
         if session.is_active():
             session.terminate()
@@ -126,11 +125,11 @@ class TwitterAuthorized(webapp.RequestHandler):
             return
 
         key, secret = oauthclient.exchange_request_token_for_access_token(TWITTER_CONSUMER_KEY,
-                                                                     TWITTER_CONSUMER_SECRET,
-                                                                     TWITTER_ACCESS_TOKEN_URL,
-                                                                     verifier,
-                                                                     key,
-                                                                     secret)
+                                                                          TWITTER_CONSUMER_SECRET,
+                                                                          TWITTER_ACCESS_TOKEN_URL,
+                                                                          verifier,
+                                                                          key,
+                                                                          secret)
 
         twitapi = twitter.Api(TWITTER_CONSUMER_KEY,
                               TWITTER_CONSUMER_SECRET,
