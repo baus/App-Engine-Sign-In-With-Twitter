@@ -25,12 +25,12 @@ def get_profile_by_handle(screen_name):
     return Profile.get_by_key_name(screen_name)
 
 
-def IsRequestToken(token):
+def is_request_token(token):
     return (token and token.token_type == 'request' and
             token.secret and len(token.secret) > 0 and
             token.oauth_key and len(token.oauth_key) > 0)
 
-def IsAccessToken(token):
+def is_access_token(token):
     return (token and token.token_type == 'access' and
             token.secret and len(token.secret) > 0 and
             token.oauth_key and len(token.oauth_key) > 0)

@@ -1,5 +1,7 @@
 import django.forms
-import datastore
+import models
+from django.forms.formsets import formset_factory
+
 
 class ServiceForm(django.forms.Form):
     display_name = django.forms.CharField()
@@ -11,7 +13,7 @@ class ServiceForm(django.forms.Form):
 
 def create_service_formset():
     initial_values = []
-    for service in datastore.OAuthService.all():
+    for service in models.OAuthService.all():
         service_initial_values = {}
         service_initial_values["display_name"] = service.display_name
         service_initial_values["consumer_secret"] = service.consumer_secret
@@ -19,8 +21,8 @@ def create_service_formset():
         service_initial_values["request_token_url"] = service.request_token_url
         service_initial_values["authorize_url"] = service.authorize_url
         service_initial_values["access_token_url"] = service.access_token_url
-        initial_values.add(service_initial_values)
-    
-    ServiceFormset = formset_factory(ServiceForm)
-    return ServiceFormset(initial = service_initial_values)
+        initial_values.append(service_initial_values)
+
+    ServiceFormset = formset_factory(ServiceForm, extra=0)
+    return ServiceFormset(initial = initial_values)
     

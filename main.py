@@ -26,6 +26,7 @@ import functools
 import jinja2
 import oauthclient
 import oauthclient.forms
+import oauthclient.models
 from google.appengine.api import users
 
 
@@ -39,12 +40,7 @@ from gaesessions import get_current_session
 from gaesessions import delete_expired_sessions
 from twitteroauthkeys import TWITTER_CONSUMER_KEY
 from twitteroauthkeys import TWITTER_CONSUMER_SECRET
-from django.forms.formsets import formset_factory
 
-
-TWITTER_REQUEST_TOKEN_URL = "https://api.twitter.com/oauth/request_token"
-TWITTER_ACCESS_TOKEN_URL = "https://api.twitter.com/oauth/access_token"
-TWITTER_AUTHENTICATE_URL = "https://api.twitter.com/oauth/authenticate"
 
 class Profile(db.Model):
     twitter_access_token_key = db.StringProperty()
@@ -188,10 +184,8 @@ class Admin(webapp.RequestHandler):
                     "authorize_url": "http://foobar.com/",
                     "access_token_url": "http://sdf.com/"}]
 
-        ServiceFormset = formset_factory(oauthclient.forms.ServiceForm)
-        service_formset = ServiceFormset(initial = initial_values)
         template_values = {
-            'service_formset': service_formset
+            'service_formset': oauthclient.forms.create_service_formset()
         }
 
         template = jinja_environment.get_template('templates/admin.html')
@@ -224,8 +218,20 @@ class Admin(webapp.RequestHandler):
         template = jinja_environment.get_template('templates/admin.html')
         self.response.out.write(template.render(template_values))
 
+class RegisterServices(webapp.RequestHandler):
+    def get(self):
+
+        twitter_service = oauthclient.models.OAuthService()
+        twitter_service.id = "twitter"
+        twitter_service.display_name = "Twitter"
+        twitter_service.request_token_url = "https://api.twitter.com/oauth/request_token"
+        twitter_service.authorize_url = "https://api.twitter.com/oauth/authenticate"
+        twitter_service.access_token_url = "https://api.twitter.com/oauth/access_token"
+        twitter_service.authenticate_url = "https://api.twitter.com/oauth/authenticate"
+        twitter_service.save()
 
 application = webapp.WSGIApplication([('/', MainHandler),
+                                      ('/registerservices', RegisterServices),
                                       ('/admin', Admin),
                                       ('/profile', ProfileHandler),
                                       ('/signin', SignInWithTwitter),
