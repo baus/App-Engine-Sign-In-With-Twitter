@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2011 Chris Baus christopher@baus.net @baus on Twitter
+# Copyright 2011-2013 Chris Baus christopher@baus.net @baus on Twitter
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -69,7 +69,13 @@ class Admin(webapp.RequestHandler):
 
 class MainHandler(webapp.RequestHandler):
     def get(self):
-        path = os.path.join(os.path.dirname(__file__), 'templates/signin.html')
+        twitter_service = oauthclient.models.OAuthService.get_by_key_name("twitter")
+        path = None
+        if twitter_service is None:
+            path = os.path.join(os.path.dirname(__file__), 'templates/register.html')
+        else:
+            path = os.path.join(os.path.dirname(__file__), 'templates/signin.html')
+
         self.response.out.write(template.render(path, None))
 
 class ProfileHandler(webapp.RequestHandler):
@@ -201,7 +207,9 @@ class RegisterServices(webapp.RequestHandler):
         twitter_service.save()
 
         dropbox_service = oauthclient.models.OAuthService(key_name="dropbox")
-        dropbox_service.display_name = "Drop Box"
+        dropbox_service.display_name = "Dropbox"
+        self.redirect("/admin")
+
 
 
 application = webapp.WSGIApplication([('/', MainHandler),
