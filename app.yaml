@@ -4,6 +4,9 @@ runtime: python27
 api_version: 1
 threadsafe: no
 
+env_variables:
+  DJANGO_SETTINGS_MODULE: 'settings'
+
 libraries:
 - name: jinja2
   version: latest

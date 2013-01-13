@@ -1,7 +1,6 @@
 from google.appengine.ext import db
 
 class OAuthService(db.Model):
-    id = db.StringProperty()
     display_name = db.StringProperty()
     consumer_secret = db.StringProperty()
     consumer_key = db.StringProperty()
