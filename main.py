@@ -190,18 +190,17 @@ class CleanupSessions(webapp.RequestHandler):
 
 
 class RegisterServices(webapp.RequestHandler):
+    @administrator_with_login_redirect
     def get(self):
+        if oauthclient.models.OAuthService.get_by_key_name("twitter") is None:
+            twitter_service = oauthclient.models.OAuthService(key_name="twitter")
+            twitter_service.display_name = "Twitter"
+            twitter_service.request_token_url = "https://api.twitter.com/oauth/request_token"
+            twitter_service.authorize_url = "https://api.twitter.com/oauth/authenticate"
+            twitter_service.access_token_url = "https://api.twitter.com/oauth/access_token"
+            twitter_service.authenticate_url = "https://api.twitter.com/oauth/authenticate"
+            twitter_service.save()
 
-        twitter_service = oauthclient.models.OAuthService(key_name="twitter")
-        twitter_service.display_name = "Twitter"
-        twitter_service.request_token_url = "https://api.twitter.com/oauth/request_token"
-        twitter_service.authorize_url = "https://api.twitter.com/oauth/authenticate"
-        twitter_service.access_token_url = "https://api.twitter.com/oauth/access_token"
-        twitter_service.authenticate_url = "https://api.twitter.com/oauth/authenticate"
-        twitter_service.save()
-
-        dropbox_service = oauthclient.models.OAuthService(key_name="dropbox")
-        dropbox_service.display_name = "Dropbox"
         self.redirect("/admin")
 
 
