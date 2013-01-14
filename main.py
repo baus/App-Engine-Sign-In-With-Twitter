@@ -29,12 +29,11 @@ import oauthclient.models
 from google.appengine.api import users
 
 
-jinja_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
+jinja_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), "templates")))
 
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
-from google.appengine.ext.webapp import template
 from gaesessions import get_current_session
 from gaesessions import delete_expired_sessions
 
@@ -62,21 +61,48 @@ def authenticated(method):
         return method(self, *args, **kwargs)
     return wrapper
 
+def administrator_with_login_redirect(method):
+    """Decorate with this method to restrict to site admins. Also redirect to a login page if the user
+       isn't logged in."""
+    @functools.wraps(method)
+    def wrapper(self, *args, **kwargs):
+        user = users.get_current_user()
+        if user:
+            if not users.is_current_user_admin():
+                return self.error(403)
+            else:
+                return method(self, *args, **kwargs)
+        else:
+            self.redirect(users.create_login_url("/admin"))
+
+    return wrapper
+
 class Admin(webapp.RequestHandler):
+    @administrator_with_login_redirect
     def get(self):
-        template = jinja_environment.get_template('templates/admin.html')
-        self.response.out.write(template.render())
+        template_values = {}
+        template_values["service_formset"] = oauthclient.forms.create_service_formset()
+        template = jinja_environment.get_template('admin.html')
+        self.response.out.write(template.render(template_values))
+
+    @administrator_with_login_redirect
+    def post(self):
+        admin_formset = oauthclient.forms.create_service_formset(self.request.POST)
+        if oauthclient.forms.save_formset(admin_formset):
+            self.redirect("/")
+        else:
+            self.redirect("/admin")
 
 class MainHandler(webapp.RequestHandler):
     def get(self):
         twitter_service = oauthclient.models.OAuthService.get_by_key_name("twitter")
-        path = None
+        template = None
         if twitter_service is None:
-            path = os.path.join(os.path.dirname(__file__), 'templates/register.html')
+            template = jinja_environment.get_template("register_services.html")
         else:
-            path = os.path.join(os.path.dirname(__file__), 'templates/signin.html')
+            template = jinja_environment.get_template("signin.html")
 
-        self.response.out.write(template.render(path, None))
+        self.response.out.write(template.render())
 
 class ProfileHandler(webapp.RequestHandler):
     def render_template(self, profile_saved):
@@ -84,8 +110,8 @@ class ProfileHandler(webapp.RequestHandler):
                            "example_data": self.profile.example_data if self.profile.example_data is not None else "",
                            "profile_saved": profile_saved}
 
-        path = os.path.join(os.path.dirname(__file__), 'templates/profile.html')
-        self.response.out.write(template.render(path, template_values))
+        template = jinja_environment.get_template("profile.html")
+        self.response.out.write(template.render(template_values))
 
 
     @authenticated
@@ -162,38 +188,6 @@ class CleanupSessions(webapp.RequestHandler):
         while not delete_expired_sessions():
             pass
 
-def administrator_with_login_redirect(method):
-    """Decorate with this method to restrict to site admins. Also redirect to a login page if the user
-       isn't logged in."""
-    @functools.wraps(method)
-    def wrapper(self, *args, **kwargs):
-        user = users.get_current_user()
-        if user:
-            if not users.is_current_user_admin():
-                return self.error(403)
-            else:
-                return method(self, *args, **kwargs)
-        else:
-            self.redirect(users.create_login_url("/admin"))
-
-    return wrapper
-
-
-class Admin(webapp.RequestHandler):
-    @administrator_with_login_redirect
-    def get(self):
-        template_values = {}
-        template_values["service_formset"] = oauthclient.forms.create_service_formset()
-        template = jinja_environment.get_template('templates/admin.html')
-        self.response.out.write(template.render(template_values))
-
-    @administrator_with_login_redirect
-    def post(self):
-        admin_formset = oauthclient.forms.create_service_formset(self.request.POST)
-        if oauthclient.forms.save_formset(admin_formset):
-            self.redirect("/")
-        else:
-            self.redirect("/admin")
 
 class RegisterServices(webapp.RequestHandler):
     def get(self):

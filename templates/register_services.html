@@ -1,9 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Sign In With Twitter Example</title>
-</head>
-<body>
-OAuth services are current not registered. Click <a href="/registerservices">here</a> to register OAuth services</a>
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+    <h1>
+Register OAuth Services
+    </h1>
+    <p>
+    OAuth services need to be configured in the data store. After the services are created, you can provide your consumer keys and secrets for specific services.
+    </p>
+    <p>
+
+    <a class="btn btn-primary" href="/registerservices">Register Services</a>
+    </p>
+{% endblock content %}
