@@ -136,19 +136,20 @@ class SignInWithOAuth(webapp.RequestHandler):
         session = get_current_session()
         if session.is_active():
             session.terminate()
-        session['twitter_request_key'] = key
-        session['twitter_request_secret'] = secret
+        session[service_name + '_request_key'] = key
+        session[service_name + '_request_secret'] = secret
 
         self.redirect(oauthclient.generate_authorize_url(service.authenticate_url, key))
 
 
-class TwitterAuthorized(webapp.RequestHandler):
+class ServiceAuthorized(webapp.RequestHandler):
     def get(self):
-        service = oauthclient.models.OAuthService.get_by_key_name("twitter")
+        service_name = self.request.get("service")
+        service = oauthclient.models.OAuthService.get_by_key_name(service_name)
         verifier = self.request.get("oauth_verifier")
         session = get_current_session()
-        key = session.get('twitter_request_key')
-        secret = session.get('twitter_request_secret')
+        key = session.get(service_name + '_request_key')
+        secret = session.get(service_name + '_request_secret')
         if key is None or secret is None:
             self.error(500)
             return
@@ -222,7 +223,7 @@ application = webapp.WSGIApplication([('/', MainHandler),
                                       ('/admin', Admin),
                                       ('/profile', ProfileHandler),
                                       ('/signin', SignInWithOAuth),
-                                      ('/twitterauthorized', TwitterAuthorized),
+                                      ('/service_authorized', ServiceAuthorized),
                                       ('/signout', SignOut),
                                       ('/cleanup_sessions', CleanupSessions)],
                                          debug=True)
