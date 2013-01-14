@@ -28,3 +28,19 @@ code be bundled, so this simplifies deployment.
 ## Twitter App Configuration ##
 
 Configure your twitter app's callback URL using the following scheme: https://my-app-name.appspot.com/twitterauthorized
+
+## Support for multiple OAuth Services ##
+
+I'm working on extending the example to support multiple OAuth services. Dropbox will likely be the next supported
+service. This brings up some interesting questions and issues around profile conflicts.
+
+Let's say an app allows users to login with Twitter and Dropbox which are both OAuth 1.0 providers. The first time a 
+new user comes to the site he logs in using his Twitter account and profile is created which links to his Twitter account. 
+The next time the user comes to the site, he logs in with Dropbox, so new account is created with new profile. There is no 
+way to determine this is same user. 
+
+
+
+
+
+
