@@ -95,9 +95,9 @@ class Admin(webapp.RequestHandler):
 
 class MainHandler(webapp.RequestHandler):
     def get(self):
-        twitter_service = oauthclient.models.OAuthService.get_by_key_name("twitter")
+        service = oauthclient.models.OAuthService.get_by_key_name("twitter")
         template = None
-        if twitter_service is None:
+        if service is None:
             template = jinja_environment.get_template("register_services.html")
         else:
             template = jinja_environment.get_template("signin.html")
@@ -124,25 +124,27 @@ class ProfileHandler(webapp.RequestHandler):
         self.profile.save()
         return self.render_template(True)
 
-class SignInWithTwitter(webapp.RequestHandler):
+class SignInWithOAuth(webapp.RequestHandler):
     def get(self):
-        twitter_service = oauthclient.models.OAuthService.get_by_key_name("twitter")
+        service_name = self.request.get("service")
 
-        key, secret = oauthclient.retrieve_service_request_token(twitter_service.request_token_url,
-                                                                 twitter_service.consumer_key,
-                                                                 twitter_service.consumer_secret)
+        service = oauthclient.models.OAuthService.get_by_key_name(service_name)
+
+        key, secret = oauthclient.retrieve_service_request_token(service.request_token_url,
+                                                                 service.consumer_key,
+                                                                 service.consumer_secret)
         session = get_current_session()
         if session.is_active():
             session.terminate()
         session['twitter_request_key'] = key
         session['twitter_request_secret'] = secret
 
-        self.redirect(oauthclient.generate_authorize_url(twitter_service.authenticate_url, key))
+        self.redirect(oauthclient.generate_authorize_url(service.authenticate_url, key))
 
 
 class TwitterAuthorized(webapp.RequestHandler):
     def get(self):
-        twitter_service = oauthclient.models.OAuthService.get_by_key_name("twitter")
+        service = oauthclient.models.OAuthService.get_by_key_name("twitter")
         verifier = self.request.get("oauth_verifier")
         session = get_current_session()
         key = session.get('twitter_request_key')
@@ -151,15 +153,15 @@ class TwitterAuthorized(webapp.RequestHandler):
             self.error(500)
             return
 
-        key, secret = oauthclient.exchange_request_token_for_access_token(twitter_service.consumer_key,
-                                                                          twitter_service.consumer_secret,
-                                                                          twitter_service.access_token_url,
+        key, secret = oauthclient.exchange_request_token_for_access_token(service.consumer_key,
+                                                                          service.consumer_secret,
+                                                                          service.access_token_url,
                                                                           verifier,
                                                                           key,
                                                                           secret)
 
-        twitapi = twitter.Api(twitter_service.consumer_key,
-                              twitter_service.consumer_secret,
+        twitapi = twitter.Api(service.consumer_key,
+                              service.consumer_secret,
                               key,
                               secret,
                               cache=None)
@@ -193,13 +195,23 @@ class RegisterServices(webapp.RequestHandler):
     @administrator_with_login_redirect
     def get(self):
         if oauthclient.models.OAuthService.get_by_key_name("twitter") is None:
-            twitter_service = oauthclient.models.OAuthService(key_name="twitter")
-            twitter_service.display_name = "Twitter"
-            twitter_service.request_token_url = "https://api.twitter.com/oauth/request_token"
-            twitter_service.authorize_url = "https://api.twitter.com/oauth/authenticate"
-            twitter_service.access_token_url = "https://api.twitter.com/oauth/access_token"
-            twitter_service.authenticate_url = "https://api.twitter.com/oauth/authenticate"
-            twitter_service.save()
+            service = oauthclient.models.OAuthService(key_name="twitter")
+            service.display_name = "Twitter"
+            service.request_token_url = "https://api.twitter.com/oauth/request_token"
+            service.authorize_url = "https://api.twitter.com/oauth/authenticate"
+            service.access_token_url = "https://api.twitter.com/oauth/access_token"
+            service.authenticate_url = "https://api.twitter.com/oauth/authenticate"
+            service.save()
+
+        if oauthclient.models.OAuthService.get_by_key_name("dropbox") is None:
+            service = oauthclient.models.OAuthService(key_name="dropbox")
+            service.display_name = "Dropbox"
+            service.request_token_url = "https://api.dropbox.com/1/oauth/request_token"
+            service.authorize_url = "https://www.dropbox.com/1/oauth/authorize"
+            service.access_token_url = "https://api.dropbox.com/1/oauth/access_token"
+            service.authenticate_url = ""
+            service.save()
+
 
         self.redirect("/admin")
 
@@ -209,7 +221,7 @@ application = webapp.WSGIApplication([('/', MainHandler),
                                       ('/registerservices', RegisterServices),
                                       ('/admin', Admin),
                                       ('/profile', ProfileHandler),
-                                      ('/signin', SignInWithTwitter),
+                                      ('/signin', SignInWithOAuth),
                                       ('/twitterauthorized', TwitterAuthorized),
                                       ('/signout', SignOut),
                                       ('/cleanup_sessions', CleanupSessions)],
