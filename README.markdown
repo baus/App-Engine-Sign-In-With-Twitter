@@ -1,6 +1,6 @@
 # Sign In with Twitter OAuth Example #
 
-## Try it NOW! ##
+## Try it! ##
 
 For a live example of this example running on Google App Engine, go to [Sign In With Twitter](https://signinwithtwitter.appspot.com/).
 
