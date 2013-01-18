@@ -9,6 +9,7 @@ A local profile has been created and associated this data with it:
 <form action="/profile" method="POST">
 <div>
 <input type="text" name="example_data" value="{{ example_data }}"/>
+
 </div>
 <div>
   <input type="submit" value="update profile">
@@ -19,4 +20,8 @@ A local profile has been created and associated this data with it:
 Profile Saved...
 </div>
 {% endif %}
+<div>
+    <img src="/images/dropboxlogo.png"> Authorize Dropbox Access
+</div>
+
 {% endblock %}

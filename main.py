@@ -37,11 +37,15 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 from gaesessions import get_current_session
 from gaesessions import delete_expired_sessions
 
-
 class Profile(db.Model):
-    twitter_access_token_key = db.StringProperty()
-    twitter_access_token_secret = db.StringProperty()
     example_data = db.StringProperty()
+
+class UserOAuthAccessToken(db.Model):
+    service_name = db.StringProperty()
+    oauth_key = db.StringProperty()
+    secret = db.StringProperty()
+    profile = db.ReferenceProperty(Profile, collection_name = "access_tokens")
+
 
 def authenticated(method):
     """Decorate request handlers with this method to restrict to access to authenticated users."""
@@ -160,22 +164,29 @@ class ServiceAuthorized(webapp.RequestHandler):
                                                                           verifier,
                                                                           key,
                                                                           secret)
+        profile = None
+        if service_name == "twitter":
+            twitapi = twitter.Api(service.consumer_key,
+                                  service.consumer_secret,
+                                  key,
+                                  secret,
+                                  cache=None)
 
-        twitapi = twitter.Api(service.consumer_key,
-                              service.consumer_secret,
-                              key,
-                              secret,
-                              cache=None)
+            twitter_user = twitapi.VerifyCredentials()
+            profile = Profile.get_by_key_name(twitter_user.screen_name)
+            if profile is None:
+                profile = Profile(key_name=twitter_user.screen_name)
+                profile.save()
 
-        twituser = twitapi.VerifyCredentials()
-        profile = Profile.get_by_key_name(twituser.screen_name)
-        if profile is None:
-            profile = Profile(key_name=twituser.screen_name)
+            session["twitter_screen_name"] = twitter_user.screen_name
 
-        profile.twitter_access_token_key = key
-        profile.twitter_access_token_secret = secret
-        profile.save()
-        session["twitter_screen_name"] = twituser.screen_name
+        access_token = UserOAuthAccessToken.get_by_key_name(twitter_user.screen_name + "_" + service_name)
+        if access_token is None:
+            access_token = UserOAuthAccessToken(key_name=twitter_user.screen_name + "_" + service_name)
+            access_token.profile = profile
+        access_token.secret = secret
+        access_token.oauth_key = key
+        access_token.save()
         self.redirect("/profile")
 
 

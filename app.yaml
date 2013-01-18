@@ -4,6 +4,7 @@ runtime: python27
 api_version: 1
 threadsafe: no
 
+
 env_variables:
   DJANGO_SETTINGS_MODULE: 'settings'
 
@@ -15,6 +16,10 @@ libraries:
   version: latest
 
 handlers:
+- url: /images
+  static_dir: images
+
 - url: .*
   script: main.py
+
 
