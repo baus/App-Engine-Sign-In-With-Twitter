@@ -43,5 +43,6 @@ def save_formset(service_formset):
             service.authorize_url     = form.cleaned_data["authorize_url"]
             service.access_token_url  = form.cleaned_data["access_token_url"]
             service.save()
-            return True
-        return False
+        else:
+            return False
+    return True
