@@ -37,7 +37,7 @@ service. This brings up some interesting questions and issues around profile con
 Let's say an app allows users to login with Twitter and Dropbox which are both OAuth 1.0 providers. The first time a 
 new user comes to the site he logs in using his Twitter account and profile is created which links to his Twitter account. 
 The next time the user comes to the site, he logs in with Dropbox, so new account is created with new profile. There is no 
-way to determine this is same user. 
+way to determine this is the same user. 
 
 
 
