@@ -210,7 +210,7 @@ application = webapp.WSGIApplication([('/', MainHandler),
                                       ('/admin', Admin),
                                       ('/profile', ProfileHandler),
                                       ('/signin', SignInWithTwitter),
-                                      ('/twitterauthorized', TwitterAuthorized),
+                                      ('/services/twitter/authorized', TwitterAuthorized),
                                       ('/signout', SignOut),
                                       ('/cleanup_sessions', CleanupSessions)],
                                          debug=True)
