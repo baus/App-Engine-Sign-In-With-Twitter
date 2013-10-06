@@ -27,7 +27,7 @@ code be bundled, so this simplifies deployment.
 
 ## Twitter App Configuration ##
 
-Configure your twitter app's callback URL using the following scheme: https://my-app-name.appspot.com/twitterauthorized
+Configure your twitter app's callback URL using the following scheme: https://my-app-name.appspot.com/servcies/twitter/authorized
 
 ## Support for multiple OAuth Services ##
 
